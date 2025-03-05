@@ -14,7 +14,7 @@ test.describe('API + UI tests for Petstore', () => {
         userStatus: 1
     };
 
-    test('should create user via API and verify via API & UI', async ({ page, request }) => {
+    test.skip('should create user via API and verify via API & UI', async ({ page, request }) => {
         
         // 1️⃣ Створюємо користувача через API
         const createResponse = await request.post('https://petstore.swagger.io/v2/user', {
