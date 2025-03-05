@@ -1,32 +1,57 @@
-name: Playwright API Tests
+name: Playwright Tests
 
-on: [push, pull_request]  # Запускати тести при кожному пуші або PR
+on: 
+  push:
+    branches:
+      - main  
+  pull_request:
 
 jobs:
   test:
-    runs-on: ubuntu-latest  # Використовуємо останню версію Ubuntu
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4  # Завантажуємо репозиторій
+        uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18  # Вказуємо версію Node.js
+          node-version: 18  
 
       - name: Install dependencies
-        run: npm install  # Встановлюємо залежності
+        run: npm ci  
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps  # Встановлюємо браузери Playwright
+        run: npx playwright install --with-deps  
 
       - name: Run Playwright tests
-        run: npx playwright test  # Запускаємо тести
+        run: npx playwright test  
 
-      - name: Upload test report
-        if: always()  # Завантажити звіт навіть у разі падіння тестів
+      - name: Upload Playwright HTML report
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
-          path: playwright-report/
+          name: playwright-html-report
+          path: playwright-report
+          retention-days: 7  
+
+  deploy:
+    needs: test  # Запускаємо тільки після тестів
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download HTML report
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-html-report
+          path: playwright-report
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages  # Окрема гілка для сторінки
+          folder: playwright-report
